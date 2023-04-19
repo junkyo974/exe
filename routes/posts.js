@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const Posts = require("../schemas/post.js");
 // 전체 조회
 router.get("/posts", async (req, res) => {
     const posts = await Posts.find().sort({ Pdate: -1 });
@@ -18,7 +18,6 @@ router.get("/posts", async (req, res) => {
 
 
 // post 를 통해 게시글 작성
-const Posts = require("../schemas/post.js");
 router.post("/posts/:userId", async (req, res) => {
     const {title, userId, password, content} = req.body;
 
@@ -38,7 +37,7 @@ router.post("/posts/:userId", async (req, res) => {
 
 });
 
-router.put("/posts/:userId/", async(req, res) => {
+router.put("/posts/:userId/put", async(req, res) => {
     const {title, userId, password, content} = req.body;
 
     const existsPosts = await Posts.findOne({password});
@@ -48,15 +47,15 @@ router.put("/posts/:userId/", async(req, res) => {
             errorMessage:"비밀번호가 일치하지 않습니다. "
         })
     } else {
-        await Posts.updateOne(
+        await Posts.updateOne.json(
             {userId: userId},
             {$set: {content:content}}
         )
     }
-    res.status(200).json({success:true});
+    res.status(200)({success:true});
 });
 
-router.delete("posts/:userId/", async(req, res) => {
+router.delete("posts/:userId/delete", async(req, res) => {
     const {userId} = req.params;
 
     const existsPosts = await Comments.find({userId});
