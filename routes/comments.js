@@ -23,29 +23,36 @@ router.get("/posts/:userId/comments", async(req, res) => {
 });
 
 router.post("/posts/:userId/comments/", async(req,res) => {
-  const {userId} = req.params;
-  const {comment} = req.body;
+  const {userId, comment} = req.body;
+  
+  const existsComments = await Comments.find({userId});
+  if (existsComments.length === 0){
+    return res.status(400).json({
+        success:false,
+        errorMessage:"댓글 내용을 입력해주세요 "
+    })
+}
+    const Pdate = new Date()
 
-  const existsComments = await Comments.findOne({comment});
-  if (existsComments.length === 0 ){
-      return res.status(400).json({
-          success:false,
-          errorMessage:"댓글 내용을 입력해주세요 "
-      })
-  }
+    const createdComment = await Comments.create({userId, comment, Pdate});
 
-  await Comments.create({userId, comment});
-
-  res.json({result: success});
+    res.status(200).json({
+        success: true,
+        comment : createdComment });
+  
 });
 
 
 router.put("/posts/:userId/comments/", async(req, res) => {
-    const {userId} = req.params;
-    const {comment} = req.body;
-
-    const existsComments = await Comments.findOne({comment});
-    if (existsComments.length === 0){
+    const {userId, comment} = req.body;
+    
+    const existsComments = await Comments.findOnde({userId});
+   if (existsComments === null) {
+        return res.status(400).json({
+            success:false,
+            errorMessage:"찾을 수 없는 글입니다. "
+        })
+    } else if (existsComments.length === 0){
         return res.status(400).json({
             success:false,
             errorMessage:"댓글 내용을 입력해주세요 "
@@ -60,7 +67,7 @@ router.put("/posts/:userId/comments/", async(req, res) => {
 });
 
 router.delete("posts/:userId/comments/", async(req, res) => {
-    const {userId} = req.params;
+    const {userId} = req.body;
 
     const existsComments = await Comments.find({userId});
     if(existsComments.length){

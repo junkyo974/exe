@@ -1,24 +1,28 @@
 const express = require("express");
 const router = express.Router();
 const Posts = require("../schemas/post.js");
+const Comments = require("../schemas/comment.js");
+
 // 전체 조회
-router.get("/posts", async (req, res) => {
+router.get("/", async (req, res) => {
     const posts = await Posts.find().sort({ Pdate: -1 });
     res.status(200).json({ all: posts });
   });
 
 // userId 값에 해당하는 글만 조회  
-  router.get("/posts/:userId", async (req, res) => {
+  router.get("/:userId", async (req, res) => {
     const { userId } = req.params;
+    
     const posts = await Posts.find({ userId }).sort({ Pdate: -1 });
     res.status(200).json({ detail: posts });
+        
   });
 
 
 
 
 // post 를 통해 게시글 작성
-router.post("/posts/:userId", async (req, res) => {
+router.post("/:userId", async (req, res) => {
     const {title, userId, password, content} = req.body;
 
     const posts = await Posts.find({userId: userId});
@@ -37,30 +41,30 @@ router.post("/posts/:userId", async (req, res) => {
 
 });
 
-router.put("/posts/:userId/put", async(req, res) => {
+router.put("/:userId", async(req, res) => {
     const {title, userId, password, content} = req.body;
 
-    const existsPosts = await Posts.findOne({password});
-    if (Posts !== existsPosts){
+    const post = await Posts.findOne({password});
+    if (!post || post.password !== password){
         return res.status(400).json({
             success:false,
             errorMessage:"비밀번호가 일치하지 않습니다. "
         })
     } else {
-        await Posts.updateOne.json(
+        await Posts.updateOne(
             {userId: userId},
             {$set: {content:content}}
         )
     }
-    res.status(200)({success:true});
+    res.status(200).json({success:true});
 });
 
-router.delete("posts/:userId/delete", async(req, res) => {
+router.delete("/:userId", async(req, res) => {
     const {userId} = req.params;
 
-    const existsPosts = await Comments.find({userId});
+    const existsPosts = await Posts.find({userId});
     if(existsPosts.length){
-        await Comments.deleteOne({userId});
+        await Posts.deleteOne({userId});
     }
 
     res.json({result:"success"});

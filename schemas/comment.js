@@ -1,16 +1,18 @@
 const mongoose = require("mongoose");
+const Post = require("./post");
 
 const commentSchema = new mongoose.Schema({
-  postId: {
+    
+    userId: {
+    type: String,
+    required: true,
+    
+  },  
+    comment: {
     type: String,
     required: true
   },
-
-  content: {
-    type: String,
-    required: true
-  },
-  date: {
+    Pdate: {
     type: Date,
     required: true,
     default: Date.now
